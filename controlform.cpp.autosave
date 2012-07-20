@@ -1,0 +1,90 @@
+#include "controlform.h"
+#include "ui_controlform.h"
+#include "globalvar.h"
+
+
+controlForm::controlForm(QString fileName,QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::controlForm)
+{
+    ui->setupUi(this);
+    this->setToolTip ("select target");
+    QString sceneName = fileName.split ("/").last ().split (".")[0];
+    scene_ID = sceneName;
+    sceneName.remove (0,1);
+    qDebug () << sceneName;
+    QStringList temp = fileName.split ("/");
+    temp.removeLast ();
+    QString path = temp.join ("/")+ "/Single";
+    qDebug () << path;
+    QDir currentDir = QDir(path);
+    QStringList singleFileList = currentDir.entryList ();
+
+    int count = 0;
+    int showCount = 0 ;
+
+    foreach (QString temp, singleFileList)
+    {
+        if (temp.contains (sceneName.split ("-")[0]))
+            count++;
+    }
+
+//    QHBoxLayout *layout = new QHBoxLayout;
+//    QHBoxLayout *layout2 = new QHBoxLayout;
+//    QHBoxLayout *layout3 = new QHBoxLayout;
+//    QHBoxLayout *layout4 = new QHBoxLayout;
+
+
+    foreach(QString singleFile, singleFileList)
+    {
+        qDebug () <<count;
+
+        if (singleFile.contains (sceneName.split ("-")[0]))
+        {
+            showCount++;
+            qDebug () << singleFile << "file name";
+
+            QPixmap pixmapItem;
+            QString imageForButton = path + "/" + singleFile;
+            MyButton *myButtonWithImage;
+            QPalette palette;
+            QIcon icon = QIcon(imageForButton);
+            myButtonWithImage = new MyButton(icon);
+            myButtonWithImage->setText (singleFile.split (".")[0]);
+            myButtonWithImage->setAutoFillBackground(true);
+            palette = myButtonWithImage->palette();
+            palette.setColor(QPalette::Button,QColor(82,110,166));
+            myButtonWithImage->setPalette(palette);
+            myButtonWithImage->setIcon(icon);
+            myButtonWithImage->setIconSize(QSize(80, 120));
+            myButtonWithImage->setToolTip("Select target");
+
+
+            QLabel *IDLabel = new QLabel();
+            IDLabel->setText (singleFile.split (".")[0]);
+            myButtonWithImage->setFixedSize (80,130);
+
+
+            ui->horizontalLayout->addWidget (myButtonWithImage);
+            ui->horizontalLayout->addWidget (IDLabel);
+            ui->horizontalLayout->setDirection (QBoxLayout::RightToLeft);
+
+
+            globalMyButtons.append (myButtonWithImage);
+
+        }
+        ui->horizontalLayout->addStretch (0);
+    }
+    globalButton = globalMyButtons.first ();
+    //globalButton->setInit ();
+}
+
+void controlForm::mousePressEvent (QMouseEvent *event)
+{
+    qDebug () << "mousePressEvent on controlForm";
+}
+
+controlForm::~controlForm()
+{
+    delete ui;
+}
